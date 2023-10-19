@@ -1,6 +1,6 @@
 ﻿namespace BetWalletApi.Models.Transactions
 {
-    public class ITransactionRepository
+    public interface ITransactionRepository
     {
     }
 }

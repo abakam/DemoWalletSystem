@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace BetWalletApi.Repositories.EFCore
 {
-    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class
+    public abstract class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         private readonly BetWalletDbContext _dbContext;
 

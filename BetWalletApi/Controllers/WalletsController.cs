@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BetWalletApi.DTOs.Requests;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BetWalletApi.Controllers
@@ -7,5 +8,10 @@ namespace BetWalletApi.Controllers
     [ApiController]
     public class WalletsController : ControllerBase
     {
+        [HttpPost]
+        public async Task<IActionResult> CreateWallet([FromBody] CreateWalletRequest createWalletPayload)
+        {
+            return null;
+        }
     }
 }

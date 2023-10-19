@@ -1,3 +1,11 @@
+using BetWalletApi.Models.Common;
+using BetWalletApi.Models.Ledgers;
+using BetWalletApi.Models.Transactions;
+using BetWalletApi.Models.Users;
+using BetWalletApi.Models.Wallets;
+using BetWalletApi.Repositories.EFCore;
+using Microsoft.EntityFrameworkCore;
+
 namespace BetWalletApi
 {
     public class Program
@@ -6,7 +14,15 @@ namespace BetWalletApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Add Repositories to the container.
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+            builder.Services.AddScoped<ILedgerRepository, LedgerRepository>();
+            builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+            builder.Services.AddScoped<IUnitOfWork,  UnitOfWork>();
+
+            builder.Services.AddDbContext<BetWalletDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

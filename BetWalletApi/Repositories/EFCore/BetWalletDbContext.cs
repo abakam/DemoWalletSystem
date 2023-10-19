@@ -52,11 +52,26 @@ namespace BetWalletApi.Repositories.EFCore
             modelBuilder.Entity<Transaction>()
                 .Property(t => t.PostToLedger)
                 .HasConversion<string>(new EnumToStringConverter<PostTransactionToLedger>());
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.Amount)
+                .HasPrecision(19, 4);
 
             modelBuilder.Entity<Ledger>()
                 .Property(l => l.TransactionType)
                 .HasConversion<string>(new EnumToStringConverter<WalletFlowType>());
+            modelBuilder.Entity<Ledger>()
+                .Property(l => l.Credit)
+                .HasPrecision(19, 4);
+            modelBuilder.Entity<Ledger>()
+                .Property(l => l.Debit)
+                .HasPrecision(19, 4);
+            modelBuilder.Entity<Ledger>()
+                .Property(l => l.CurrentBalance) 
+                .HasPrecision(19, 4);
 
+            modelBuilder.Entity<Wallet>()
+                .Property(w => w.Balance)
+                .HasPrecision(19, 4);
             modelBuilder.Entity<Wallet>()  // Optimistic concurrency: instead of locking the wallet table 
                 .Property(w => w.Balance)  // to prevent another transaction from modifying the wallet balance,
                 .IsConcurrencyToken();     // the original version of the wallet record retrieve from the database is compared to the version currently in the database,

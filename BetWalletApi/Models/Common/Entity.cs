@@ -1,9 +1,14 @@
-﻿namespace BetWalletApi.Models.Common
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BetWalletApi.Models.Common
 {
     public abstract class Entity
     {
-        public Guid Id { get; set; }
+        [Required]
+        public Guid Id { get; set; } = Guid.NewGuid();
+        [Required]
         public DateTime Created { get; set; }
+        [Required]
         public DateTime LastModified { get; set;}
     }
 }

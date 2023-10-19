@@ -16,7 +16,7 @@ namespace BetWalletApi.Models.Common.Enums
         Withdrawal
     }
 
-    public enum WalletFlow
+    public enum WalletFlowType
     {
         [Description("Credit")]
         Credit,
@@ -24,5 +24,13 @@ namespace BetWalletApi.Models.Common.Enums
         Debit
 
     }
-    
+
+    public enum PostTransactionToLedger
+    {
+        [Description("PostedToLedger")]
+        PostedToLedger,
+        [Description("NotPostedToLedger")]
+        NotPostedToLedger
+    }
+
 }

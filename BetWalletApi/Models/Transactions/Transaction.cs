@@ -1,14 +1,25 @@
 ﻿using BetWalletApi.Models.Common;
 using BetWalletApi.Models.Common.Enums;
+using BetWalletApi.Models.Ledgers;
+using BetWalletApi.Models.Users;
+using System.ComponentModel.DataAnnotations;
 
 namespace BetWalletApi.Models.Transactions
 {
     public class Transaction : Entity
     {
-        public TransactionType TransactionType { get; set; }  // Convert Enum to String with EF Core
-        public string TransactionReference { get; set; }    // External input - but should be unique
-        public Decimal? Amount { get; set; }
-        public Guid UserId { get; set; }   // Foreign Key User 
-        public bool IsPostedToLedger { get; set; }
+        [Required]
+        public TransactionType TransactionType { get; set; }
+        [Required]
+        public string TransactionReference { get; set; }
+        [Required]
+        public Decimal Amount { get; set; }
+        [Required]
+        public PostTransactionToLedger PostToLedger { get; set; }
+
+        [Required]
+        public Guid UserId { get; set; }   
+        public User? User { get; set; }
+        public Ledger? Ledger { get; set; }
     }
 }

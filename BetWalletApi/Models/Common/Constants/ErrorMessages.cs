@@ -2,8 +2,10 @@
 {
     public static class ErrorMessages
     {
-        public const string INTERNAL_ERROR_MESSAGE = "An error occurred while processing your request.";
-        public const string RECORD_DO_EXISTS = "This record do not exist.";
-        public const string USERNAME_ALREADY_EXISTS = "Username already exist.";
+        public static readonly string INTERNAL_ERROR_MESSAGE = "An error occurred while processing your request.";
+        public static readonly string WALLET_DO_NOT_EXIST = "Wallet do not exists.";
+        public static readonly string USERNAME_ALREADY_EXISTS = "Username already exist.";
+        public static readonly string INVALID_TRANSACTION_TYPE = "Invalid Transaction.";
+        public static readonly string INVALID_AMOUNT = "Invalid Amount.";
     }
 }

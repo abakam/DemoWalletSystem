@@ -1,7 +1,10 @@
 ﻿using BetWalletApi.DTOs.Requests;
 using BetWalletApi.DTOs.Responses;
+using BetWalletApi.Helpers;
 using BetWalletApi.Models.Common;
 using BetWalletApi.Models.Common.Constants;
+using BetWalletApi.Models.Common.Enums;
+using BetWalletApi.Models.Transactions;
 using BetWalletApi.Models.Users;
 using BetWalletApi.Models.Wallets;
 
@@ -18,7 +21,7 @@ namespace BetWalletApi.Services
             _logger = logger;
         }
 
-        public async Task<BaseResponse<CreateWalletResponse>> CreateWallet(CreateWalletRequest request)
+        public async Task<BaseResponse<CreateWalletResponse>> CreateWalletAsync(CreateWalletRequest request)
         {
             try
             {
@@ -70,11 +73,68 @@ namespace BetWalletApi.Services
             catch (Exception ex)
             {
                 _unitOfWork.Rollback();
-                _logger.LogError("WalletService:CreateWallet: ", ex.Message);
+                _logger.LogError("Error while creating wallet: ", ex.Message);
                 return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.INTERNAL_ERROR_MESSAGE, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
 
             }
 
         }
+
+        public async Task<BaseResponse<FundWalletResponse>> FundWalletAsync(FundWalletRequest request)
+        {
+            if(!Utils.IsFundTransactionType(request.TransactionType))
+            {
+                return BaseResponse<FundWalletResponse>.WithError(ErrorMessages.INVALID_TRANSACTION_TYPE, ResponseStatusCodes.BAD_REQUEST);
+            }
+
+            if(request.Amount < 0)
+            {
+                return BaseResponse<FundWalletResponse>.WithError(ErrorMessages.INVALID_AMOUNT, ResponseStatusCodes.BAD_REQUEST);
+            }
+
+            try
+            {
+                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(request.Username);
+
+                if(existingUser == null)
+                {
+                    return BaseResponse<FundWalletResponse>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
+                }
+
+                var newTransaction = new Transaction
+                {
+                    UserId = existingUser.Id,
+                    TransactionType = Utils.ConvertStringToTransactionType(request.TransactionType),
+                    Amount = request.Amount,
+                    TransactionReference = request.TransactionReference,
+                    PostToLedger = PostTransactionToLedger.NotPostedToLedger,
+                    Created = DateTime.UtcNow,
+                    LastModified = DateTime.UtcNow
+                };
+
+                _unitOfWork.Transactions.Add(newTransaction);
+                _unitOfWork.Save();
+
+                var fundWalletResponse = new FundWalletResponse
+                {
+                    Amount = request.Amount,
+                    TransactionId = newTransaction.Id,
+                    TransactionReference = request.TransactionReference,
+                    TransactionType = request.TransactionType,
+                    Username = request.Username
+                };
+
+                return BaseResponse<FundWalletResponse>.WithSuccess(fundWalletResponse);
+
+            } catch(Exception ex)
+            {
+                _logger.LogError("Error while funding wallet: ", ex.Message);
+                return BaseResponse<FundWalletResponse>.WithError(ErrorMessages.INTERNAL_ERROR_MESSAGE, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
+            }
+
+
+        }
+
+       
     }
 }

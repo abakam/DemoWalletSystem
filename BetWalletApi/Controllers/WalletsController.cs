@@ -29,7 +29,7 @@ namespace BetWalletApi.Controllers
                 return BadRequest(new ApiResponse<string> { ErrorMessage = "Username is required." });
             }
 
-            var createWalletResponse = await _walletService.CreateWallet(createWallet);
+            var createWalletResponse = await _walletService.CreateWalletAsync(createWallet);
 
             if(createWalletResponse.Success)
             { 
@@ -40,19 +40,31 @@ namespace BetWalletApi.Controllers
         }
 
         [HttpPost("{username}/deposits")]
-        [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(ApiResponse<FundWalletRequest>))]
+        [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(ApiResponse<FundWalletResponse>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> FundWalletAsync([FromBody] FundWalletRequest fundWallet)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse<string> { ErrorMessage = "Some inputs are invalid." });
+            }
+
+            var fundWalletResponse = await _walletService.FundWalletAsync(fundWallet);
+
+            if(fundWalletResponse.Success)
+            {
+                return StatusCode(StatusCodes.Status202Accepted, new ApiResponse<FundWalletResponse> { Data = fundWalletResponse.Result });
+            }
+
+            return StatusCode(fundWalletResponse.ErrorCode, fundWalletResponse.Message);
         }
 
         [HttpPost("{username}/withdrawals")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<FundWalletRequest>))]
         [ProducesResponseType (StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DebitWalletAsync([FromBody] FundWalletRequest debitWallet)
+        public async Task<IActionResult> WithdrawFromWalletAsync([FromBody] FundWalletRequest debitWallet)
         {
             throw new NotImplementedException();
         }

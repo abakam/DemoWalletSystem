@@ -2,8 +2,9 @@
 {
     public static class ResponseStatusCodes
     {
-        public const int Not_Found = 404;
-        public const int INTERNAL_SERVER_ERROR = 500;
-        public const int ALREADY_EXISTS = 409;
+        public static readonly int Not_Found = 404;
+        public static readonly int INTERNAL_SERVER_ERROR = 500;
+        public static readonly int ALREADY_EXISTS = 409;
+        public static readonly int BAD_REQUEST = 400;
     }
 }

@@ -5,6 +5,7 @@ namespace BetWalletApi.Services
 {
     public interface IWalletService
     {
-        Task<BaseResponse<CreateWalletResponse>> CreateWallet(CreateWalletRequest request);
+        Task<BaseResponse<CreateWalletResponse>> CreateWalletAsync(CreateWalletRequest request);
+        Task<BaseResponse<FundWalletResponse>> FundWalletAsync(FundWalletRequest request);
     }
 }

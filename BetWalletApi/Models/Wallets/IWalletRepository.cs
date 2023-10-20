@@ -1,6 +1,8 @@
-﻿namespace BetWalletApi.Models.Wallets
+﻿using BetWalletApi.Models.Common;
+
+namespace BetWalletApi.Models.Wallets
 {
-    public interface IWalletRepository
+    public interface IWalletRepository : IRepository<Wallet>
     {
     }
 }

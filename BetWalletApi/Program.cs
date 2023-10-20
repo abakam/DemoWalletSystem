@@ -5,6 +5,8 @@ using BetWalletApi.Models.Users;
 using BetWalletApi.Models.Wallets;
 using BetWalletApi.Repositories.EFCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using BetWalletApi.Services;
 
 namespace BetWalletApi
 {
@@ -24,7 +26,14 @@ namespace BetWalletApi
 
             builder.Services.AddDbContext<BetWalletDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddControllers();
+            // Add Services to the container.
+            builder.Services.AddScoped<IWalletService, WalletService>();
+
+            builder.Services.AddControllers()
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.SuppressModelStateInvalidFilter = true;
+                });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

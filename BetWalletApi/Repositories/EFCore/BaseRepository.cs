@@ -39,7 +39,7 @@ namespace BetWalletApi.Repositories.EFCore
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<TEntity?> GetByIdAsync<TId>(TId id)
+        public async Task<TEntity?> GetByIdAsync<TId>(TId id) where TId : notnull
         {
             return await _dbContext.Set<TEntity>().FindAsync(id);
         }

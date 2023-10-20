@@ -1,6 +1,8 @@
-﻿namespace BetWalletApi.Models.Ledgers
+﻿using BetWalletApi.Models.Common;
+
+namespace BetWalletApi.Models.Ledgers
 {
-    public interface ILedgerRepository
+    public interface ILedgerRepository : IRepository<Ledger>
     {
     }
 }

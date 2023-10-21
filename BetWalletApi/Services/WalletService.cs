@@ -1,4 +1,5 @@
-﻿using BetWalletApi.DTOs.Requests;
+﻿using Azure.Core;
+using BetWalletApi.DTOs.Requests;
 using BetWalletApi.DTOs.Responses;
 using BetWalletApi.Helpers;
 using BetWalletApi.Models.Common;
@@ -80,7 +81,7 @@ namespace BetWalletApi.Services
 
         }
 
-        public async Task<BaseResponse<FundWalletResponse>> FundWalletAsync(FundWalletRequest request)
+        public async Task<BaseResponse<FundWalletResponse>> FundWalletAsync(string username, FundWalletRequest request)
         {
             if(!Utils.IsFundTransactionType(request.TransactionType))
             {
@@ -94,7 +95,7 @@ namespace BetWalletApi.Services
 
             try
             {
-                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(request.Username);
+                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(username);
 
                 if(existingUser == null)
                 {
@@ -106,8 +107,7 @@ namespace BetWalletApi.Services
                     UserId = existingUser.Id,
                     TransactionType = Utils.ConvertStringToTransactionType(request.TransactionType),
                     Amount = request.Amount,
-                    TransactionReference = request.TransactionReference,
-                    PostToLedger = PostTransactionToLedger.NotPostedToLedger,
+                    TransactionStatus = TransactionStatus.Initiated,
                     Created = DateTime.UtcNow,
                     LastModified = DateTime.UtcNow
                 };
@@ -119,9 +119,8 @@ namespace BetWalletApi.Services
                 {
                     Amount = request.Amount,
                     TransactionId = newTransaction.Id,
-                    TransactionReference = request.TransactionReference,
                     TransactionType = request.TransactionType,
-                    Username = request.Username
+                    Username = username
                 };
 
                 return BaseResponse<FundWalletResponse>.WithSuccess(fundWalletResponse);
@@ -135,6 +134,41 @@ namespace BetWalletApi.Services
 
         }
 
-       
+        public async Task<BaseResponse<CreateWalletResponse>> GetWalletDetailsAsync(string username)
+        {
+            try
+            {
+                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(username);
+
+                if (existingUser == null)
+                {
+                    return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
+                }
+
+                var existingWallet = await _unitOfWork.Wallets.FindByUserIdAsync(existingUser.Id);
+
+                if(existingWallet == null)
+                {
+                    return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
+                }
+
+                var walletDetailsResponse = new CreateWalletResponse
+                {
+                    WalletId = existingWallet.Id,
+                    Balance = existingWallet.Balance,
+                    Email = existingUser.Email,
+                    FirstName = existingUser.FirstName,
+                    LastName = existingUser.LastName,
+                    Username = existingUser.UserName
+                };
+
+                return BaseResponse<CreateWalletResponse>.WithSuccess(walletDetailsResponse);
+
+            } catch(Exception ex)
+            {
+                _logger.LogError("Error while geting wallet details: ", ex.Message);
+                return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.INVALID_AMOUNT, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        }
     }
 }

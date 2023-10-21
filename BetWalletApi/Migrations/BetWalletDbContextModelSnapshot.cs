@@ -77,11 +77,7 @@ namespace BetWalletApi.Migrations
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PostToLedger")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("TransactionReference")
+                    b.Property<string>("TransactionStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -94,10 +90,7 @@ namespace BetWalletApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostToLedger");
-
-                    b.HasIndex("TransactionReference")
-                        .IsUnique();
+                    b.HasIndex("TransactionStatus");
 
                     b.HasIndex("TransactionType");
 

@@ -25,12 +25,12 @@ namespace BetWalletApi.Models.Common.Enums
 
     }
 
-    public enum PostTransactionToLedger
+    public enum TransactionStatus
     {
-        [Description("PostedToLedger")]
-        PostedToLedger,
-        [Description("NotPostedToLedger")]
-        NotPostedToLedger
+        [Description("Initiated")]
+        Initiated,
+        [Description("Approved")]
+        Approved
     }
 
 }

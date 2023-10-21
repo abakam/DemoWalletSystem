@@ -34,9 +34,8 @@ namespace BetWalletApi.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TransactionType = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TransactionReference = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TransactionStatus = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
-                    PostToLedger = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -104,15 +103,9 @@ namespace BetWalletApi.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_PostToLedger",
+                name: "IX_Transactions_TransactionStatus",
                 table: "Transactions",
-                column: "PostToLedger");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Transactions_TransactionReference",
-                table: "Transactions",
-                column: "TransactionReference",
-                unique: true);
+                column: "TransactionStatus");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_TransactionType",

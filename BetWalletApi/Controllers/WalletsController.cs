@@ -39,43 +39,51 @@ namespace BetWalletApi.Controllers
             return StatusCode(createWalletResponse.ErrorCode, new ApiResponse<string> { ErrorMessage = createWalletResponse.Message });
         }
 
+
         [HttpPost("{username}/deposits")]
         [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(ApiResponse<FundWalletResponse>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> FundWalletAsync([FromBody] FundWalletRequest fundWallet)
+        public async Task<IActionResult> FundWalletAsync(string username, [FromBody] FundWalletRequest fundWallet)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(new ApiResponse<string> { ErrorMessage = "Some inputs are invalid." });
             }
 
-            var fundWalletResponse = await _walletService.FundWalletAsync(fundWallet);
+            var fundWalletResponse = await _walletService.FundWalletAsync(username, fundWallet);
 
             if(fundWalletResponse.Success)
             {
                 return StatusCode(StatusCodes.Status202Accepted, new ApiResponse<FundWalletResponse> { Data = fundWalletResponse.Result });
             }
 
-            return StatusCode(fundWalletResponse.ErrorCode, fundWalletResponse.Message);
+            return StatusCode(fundWalletResponse.ErrorCode, new ApiResponse<FundWalletResponse> { ErrorMessage = fundWalletResponse.Message });
         }
 
         [HttpPost("{username}/withdrawals")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<FundWalletRequest>))]
         [ProducesResponseType (StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> WithdrawFromWalletAsync([FromBody] FundWalletRequest debitWallet)
+        public async Task<IActionResult> WithdrawFromWalletAsync(string username, [FromBody] FundWalletRequest debitWallet)
         {
             throw new NotImplementedException();
         }
 
         [HttpGet("{username}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof (ApiResponse<FundWalletRequest>))]    // Replace with appropriate type
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof (ApiResponse<CreateWalletResponse>))]    
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetWalletDetailsAsync()
+        public async Task<IActionResult> GetWalletDetailsAsync(string username)
         {
-            throw new NotImplementedException();
+            var walletDetails = await _walletService.GetWalletDetailsAsync(username);
+
+            if(walletDetails.Success)
+            {
+                return StatusCode(StatusCodes.Status200OK, new ApiResponse<CreateWalletResponse> { Data = walletDetails.Result });
+            }
+
+            return StatusCode(walletDetails.ErrorCode, new ApiResponse<CreateWalletResponse> { ErrorMessage = walletDetails.Message });
         }
     }
 }

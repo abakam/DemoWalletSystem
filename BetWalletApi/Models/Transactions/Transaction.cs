@@ -10,12 +10,10 @@ namespace BetWalletApi.Models.Transactions
     {
         [Required]
         public TransactionType TransactionType { get; set; }
-        [Required]
-        public string TransactionReference { get; set; }
+        [Required] 
+        public TransactionStatus TransactionStatus { get; set;  }
         [Required]
         public Decimal Amount { get; set; }
-        [Required]
-        public PostTransactionToLedger PostToLedger { get; set; }
 
         [Required]
         public Guid UserId { get; set; }   

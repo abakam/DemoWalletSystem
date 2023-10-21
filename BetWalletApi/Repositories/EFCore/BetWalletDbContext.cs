@@ -40,18 +40,15 @@ namespace BetWalletApi.Repositories.EFCore
                 .WithOne(t => t.Transaction)
                 .HasForeignKey<Ledger>(l => l.TransactionId);
             modelBuilder.Entity<Transaction>()
-                .HasIndex(t => t.TransactionReference)
-                .IsUnique();
-            modelBuilder.Entity<Transaction>()
-                .HasIndex(t => t.PostToLedger);   // index PostToLedger column since it's frequently searched
+                .HasIndex(t => t.TransactionStatus);
             modelBuilder.Entity<Transaction>()
                 .HasIndex(t => t.TransactionType);
             modelBuilder.Entity<Transaction>()
                 .Property(t => t.TransactionType)
                 .HasConversion<string>(new EnumToStringConverter<TransactionType>());
             modelBuilder.Entity<Transaction>()
-                .Property(t => t.PostToLedger)
-                .HasConversion<string>(new EnumToStringConverter<PostTransactionToLedger>());
+               .Property(t => t.TransactionStatus)
+               .HasConversion<string>(new EnumToStringConverter<TransactionStatus>());
             modelBuilder.Entity<Transaction>()
                 .Property(t => t.Amount)
                 .HasPrecision(19, 4);

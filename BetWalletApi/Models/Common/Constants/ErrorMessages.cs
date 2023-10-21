@@ -7,5 +7,8 @@
         public static readonly string USERNAME_ALREADY_EXISTS = "Username already exist.";
         public static readonly string INVALID_TRANSACTION_TYPE = "Invalid Transaction.";
         public static readonly string INVALID_AMOUNT = "Invalid Amount.";
+        public static readonly string WITHDRAWAL_REQUEST_NOT_FOUND = "Withdrawal request not found.";
+        public static readonly string WITHDRAWAL_REQUEST_HAS_BEEN_ALTERED = "Withdrawal request has been altered.";
+        public static readonly string INSUFFICIENT_FUNDS = "Insufficcient funds.";
     }
 }

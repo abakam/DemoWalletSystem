@@ -61,13 +61,37 @@ namespace BetWalletApi.Controllers
             return StatusCode(fundWalletResponse.ErrorCode, new ApiResponse<FundWalletResponse> { ErrorMessage = fundWalletResponse.Message });
         }
 
-        [HttpPost("{username}/withdrawals")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<FundWalletRequest>))]
+        [HttpPost("{username}/withdrawals/initiations")]
+        [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(ApiResponse<ApproveWithdrawalRequest>))]
         [ProducesResponseType (StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> WithdrawFromWalletAsync(string username, [FromBody] FundWalletRequest debitWallet)
+        public async Task<IActionResult> InitiateWithdrawalAsync(string username, [FromBody] InitiateWithdrawalRequest initiateWithdrawal)
         {
-            throw new NotImplementedException();
+            var initiateWithrawalResponse = await _walletService.InitiateWithdrawalAsync(username, initiateWithdrawal);
+
+            if (initiateWithrawalResponse.Success)
+            {
+                return StatusCode(StatusCodes.Status202Accepted, new ApiResponse<ApproveWithdrawalRequest> { Data = initiateWithrawalResponse.Result });
+            }
+           
+
+            return StatusCode(initiateWithrawalResponse.ErrorCode, new ApiResponse<ApproveWithdrawalRequest> { ErrorMessage = initiateWithrawalResponse.Message });
+        }
+
+        [HttpPost("{username}/withdrawals/approvals")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<ApproveWithdrawalRequest>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ApproveWithdrawalAsync(string username, [FromBody] ApproveWithdrawalRequest approveWithdrawal)
+        {
+            var approveWithdrawalResponse = await _walletService.ApproveWithdrawalAsync(username, approveWithdrawal);
+
+            if(approveWithdrawalResponse.Success)
+            {
+                return StatusCode(StatusCodes.Status200OK, new ApiResponse<ApproveWithdrawalRequest> { Data = approveWithdrawalResponse.Result });
+            }
+
+            return StatusCode(approveWithdrawalResponse.ErrorCode, new ApiResponse<ApproveWithdrawalRequest> { ErrorMessage =  approveWithdrawalResponse.Message });
         }
 
         [HttpGet("{username}")]

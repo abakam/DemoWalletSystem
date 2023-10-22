@@ -245,7 +245,9 @@ namespace BetWalletApi.Services
                     return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
                 }
 
-                var existingTransaction = await _unitOfWork.Transactions.GetByIdAsync(request.TransactionId);
+                Guid transactionId = Guid.Parse(request.TransactionId);
+
+                var existingTransaction = await _unitOfWork.Transactions.GetByIdAsync(transactionId);
 
                 if (existingTransaction == null)
                 {
@@ -285,11 +287,13 @@ namespace BetWalletApi.Services
                 existingWallet.Balance = currentBalance - request.Amount;
                 existingWallet.LastModified = DateTime.UtcNow;
                 _unitOfWork.Wallets.Update(existingWallet);
+                _unitOfWork.Save();
 
                 // Update transaction status
                 existingTransaction.TransactionStatus = TransactionStatus.Approved;
                 existingTransaction.LastModified = DateTime.UtcNow;
                 _unitOfWork.Transactions.Update(existingTransaction);
+                _unitOfWork.Save();
 
                 // Post to ledger
                 var newLedger = new Ledger
@@ -303,6 +307,7 @@ namespace BetWalletApi.Services
                     LastModified = DateTime.UtcNow
                 };
                 _unitOfWork.Ledgers.Add(newLedger);
+                _unitOfWork.Save();
                 _unitOfWork.Commit();
 
                 return BaseResponse<ApproveWithdrawalRequest>.WithSuccess(request);

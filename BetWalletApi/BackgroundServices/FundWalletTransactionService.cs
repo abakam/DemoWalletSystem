@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using BetWalletApi.Helpers;
-using BetWalletApi.Models.Common;
+﻿using BetWalletApi.Models.Common;
 using BetWalletApi.Models.Common.Enums;
 using BetWalletApi.Models.Ledgers;
 using BetWalletApi.Models.Transactions;
@@ -61,11 +59,13 @@ namespace BetWalletApi.BackgroundServices
                             existingWallet.Balance = currentBalance + transaction.Amount;
                             existingWallet.LastModified = DateTime.UtcNow;
                             unitOfWork.Wallets.Update(existingWallet);
+                            unitOfWork.Save();
 
                             // Update transaction status
                             transaction.TransactionStatus = TransactionStatus.Approved;
                             transaction.LastModified = DateTime.UtcNow;
                             unitOfWork.Transactions.Update(transaction);
+                            unitOfWork.Save();
 
                             // Post to ledger
                             var newLedger = new Ledger
@@ -79,6 +79,7 @@ namespace BetWalletApi.BackgroundServices
                                 LastModified = DateTime.UtcNow
                             };
                             unitOfWork.Ledgers.Add(newLedger);
+                            unitOfWork.Save();
                             unitOfWork.Commit();
                         }
                     }
@@ -103,7 +104,9 @@ namespace BetWalletApi.BackgroundServices
                     var transactionRepository = scope.ServiceProvider.GetService<ITransactionRepository>();
 
                     transactions = await transactionRepository.ListAsync(t =>
-                                               Utils.IsFundTransactionType(t.TransactionType.ToString()) &&
+                                               (t.TransactionType == TransactionType.Winning ||
+                                               t.TransactionType == TransactionType.Bonus ||
+                                               t.TransactionType == TransactionType.Deposit) && 
                                                t.TransactionStatus == TransactionStatus.Initiated);
                 }
 

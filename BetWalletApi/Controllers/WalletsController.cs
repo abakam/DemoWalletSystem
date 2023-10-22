@@ -1,7 +1,6 @@
 ﻿using BetWalletApi.DTOs.Requests;
 using BetWalletApi.DTOs.Responses;
 using BetWalletApi.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BetWalletApi.Controllers

@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BetWalletApi.Controllers
 {
+    /// <summary>
+    /// API for creating wallet, funding wallet and withdrawing funds.
+    /// </summary>
     [Route("api/v1/wallets")]
     [ApiController]
     public class WalletsController : ControllerBase

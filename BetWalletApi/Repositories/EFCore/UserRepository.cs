@@ -12,7 +12,7 @@ namespace BetWalletApi.Repositories.EFCore
             _dbContext = dbContext;
         }
 
-        public async Task<User> FindByUsernameAsync(string username)
+        public async Task<User> GetByUsernameAsync(string username)
         {
             return await _dbContext.Set<User>().Where(u => u.UserName == username).FirstOrDefaultAsync();
         }

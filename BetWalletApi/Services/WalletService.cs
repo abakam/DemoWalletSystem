@@ -27,7 +27,7 @@ namespace BetWalletApi.Services
         {
             try
             {
-                var user = await _unitOfWork.Users.FindByUsernameAsync(request.Username);
+                var user = await _unitOfWork.Users.GetByUsernameAsync(request.Username);
 
                 if (user != null)
                 {
@@ -72,10 +72,10 @@ namespace BetWalletApi.Services
 
                 return BaseResponse<CreateWalletResponse>.WithSuccess(createWalletResponse);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 _unitOfWork.Rollback();
-                _logger.LogError("Error while creating wallet: ", ex.Message);
+                _logger.LogError("Error while creating wallet: ", exception);
                 return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.INTERNAL_ERROR_MESSAGE, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
 
             }
@@ -96,14 +96,14 @@ namespace BetWalletApi.Services
 
             try
             {
-                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(username);
+                var existingUser = await _unitOfWork.Users.GetByUsernameAsync(username);
 
                 if (existingUser == null)
                 {
                     return BaseResponse<FundWalletResponse>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
                 }
 
-                var existingWallet = await _unitOfWork.Wallets.FindByUserIdAsync(existingUser.Id);
+                var existingWallet = await _unitOfWork.Wallets.GetByUserIdAsync(existingUser.Id);
 
                 if (existingWallet == null)
                 {
@@ -134,9 +134,9 @@ namespace BetWalletApi.Services
                 return BaseResponse<FundWalletResponse>.WithSuccess(fundWalletResponse);
 
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError("Error while funding wallet: ", ex.Message);
+                _logger.LogError("Error while funding wallet: ", exception);
                 return BaseResponse<FundWalletResponse>.WithError(ErrorMessages.INTERNAL_ERROR_MESSAGE, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
             }
 
@@ -147,14 +147,14 @@ namespace BetWalletApi.Services
         {
             try
             {
-                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(username);
+                var existingUser = await _unitOfWork.Users.GetByUsernameAsync(username);
 
                 if (existingUser == null)
                 {
                     return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
                 }
 
-                var existingWallet = await _unitOfWork.Wallets.FindByUserIdAsync(existingUser.Id);
+                var existingWallet = await _unitOfWork.Wallets.GetByUserIdAsync(existingUser.Id);
 
                 if (existingWallet == null)
                 {
@@ -174,9 +174,9 @@ namespace BetWalletApi.Services
                 return BaseResponse<CreateWalletResponse>.WithSuccess(walletDetailsResponse);
 
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError("Error while geting wallet details: ", ex.Message);
+                _logger.LogError("Error while geting wallet details: ", exception);
                 return BaseResponse<CreateWalletResponse>.WithError(ErrorMessages.INVALID_AMOUNT, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
             }
         }
@@ -196,7 +196,7 @@ namespace BetWalletApi.Services
 
             try
             {
-                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(username);
+                var existingUser = await _unitOfWork.Users.GetByUsernameAsync(username);
 
                 if (existingUser == null)
                 {
@@ -226,9 +226,9 @@ namespace BetWalletApi.Services
                 return BaseResponse<ApproveWithdrawalRequest>.WithSuccess(initiateWithdrawalResponse);
 
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError("Error while initiating withdrawal: ", ex.Message);
+                _logger.LogError("Error while initiating withdrawal: ", exception);
                 return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.INTERNAL_ERROR_MESSAGE, ResponseStatusCodes.INTERNAL_SERVER_ERROR);
             }
 
@@ -238,16 +238,9 @@ namespace BetWalletApi.Services
         {
             try
             {
-                var existingUser = await _unitOfWork.Users.FindByUsernameAsync(username);
+                var existingUser = await _unitOfWork.Users.GetByUsernameAsync(username);
 
                 if (existingUser == null)
-                {
-                    return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
-                }
-
-                var existingWallet = await _unitOfWork.Wallets.FindByUserIdAsync(existingUser.Id);
-
-                if (existingWallet == null)
                 {
                     return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
                 }
@@ -259,6 +252,18 @@ namespace BetWalletApi.Services
                     return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.WITHDRAWAL_REQUEST_NOT_FOUND, ResponseStatusCodes.Not_Found);
                 }
 
+                if(existingTransaction.TransactionStatus == TransactionStatus.Approved)    // Ensures that no user can spend the same funds more than once.
+                {
+                    return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.WITHDRAWAL_HAS_BEEN_PROCESSED, ResponseStatusCodes.ALREADY_EXISTS);
+                }
+
+                var existingWallet = await _unitOfWork.Wallets.GetByUserIdAsync(existingUser.Id);
+
+                if (existingWallet == null)
+                {
+                    return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.WALLET_DO_NOT_EXIST, ResponseStatusCodes.Not_Found);
+                }
+
                 var hasRequestBeenAltered = Utils.WithdrawalRequestHasBeenAltered(request, existingTransaction);
 
                 if (hasRequestBeenAltered)
@@ -268,7 +273,7 @@ namespace BetWalletApi.Services
 
                 var currentBalance = existingWallet.Balance;
 
-                if (currentBalance < request.Amount)
+                if (currentBalance < request.Amount)      // Ensures that the balance of wallat cannot be negative
                 {
                     return BaseResponse<ApproveWithdrawalRequest>.WithError(ErrorMessages.INSUFFICIENT_FUNDS, ResponseStatusCodes.BAD_REQUEST);
                 }
@@ -300,7 +305,7 @@ namespace BetWalletApi.Services
                 _unitOfWork.Ledgers.Add(newLedger);
                 _unitOfWork.Commit();
 
-                
+                return BaseResponse<ApproveWithdrawalRequest>.WithSuccess(request);
 
             }
             catch (Exception ex)

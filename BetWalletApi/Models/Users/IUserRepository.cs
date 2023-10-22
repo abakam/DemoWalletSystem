@@ -4,6 +4,6 @@ namespace BetWalletApi.Models.Users
 {
     public interface IUserRepository : IRepository<User>
     {
-        Task<User> FindByUsernameAsync(string username);
+        Task<User> GetByUsernameAsync(string username);
     }
 }

@@ -7,6 +7,7 @@ using BetWalletApi.Repositories.EFCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using BetWalletApi.Services;
+using BetWalletApi.BackgroundServices;
 
 namespace BetWalletApi
 {
@@ -28,6 +29,7 @@ namespace BetWalletApi
 
             // Add Services to the container.
             builder.Services.AddScoped<IWalletService, WalletService>();
+            builder.Services.AddHostedService<FundWalletTransactionService>();
 
             builder.Services.AddControllers()
                 .ConfigureApiBehaviorOptions(options =>
@@ -45,6 +47,13 @@ namespace BetWalletApi
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                // Migrate database changes during startup
+                using(var scope = app.Services.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<BetWalletDbContext>();
+                    dbContext.Database.Migrate();
+                }
             }
 
             app.UseHttpsRedirection();

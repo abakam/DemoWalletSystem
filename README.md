@@ -1,6 +1,9 @@
 # BetWalletSystem
 
-## Abraham Akam's Solution for LOGIFUTURE Software Developer Coding Challenge
+## A Demo App for a Wallet System
+
+- Deposits are asynchronous, while withdrawals are synchronous.
+- The background task handles asynchronous deposit transactions
 
 ### Requirements
 

@@ -1,4 +1,4 @@
-# BetWalletSystem
+# Wallet System
 
 ## A Demo App for a Wallet System
 
